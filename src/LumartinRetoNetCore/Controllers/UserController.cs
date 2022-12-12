@@ -25,6 +25,20 @@ namespace LumartinRetoNetCore.Controllers
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
             return System.Convert.ToBase64String(plainTextBytes);
         }
+        [HttpGet("cedula")]
+        public User GetUserByCedula(string cedula)
+        {
+            User? user = usuarios.Where(user => user.Cedula == cedula).SingleOrDefault();
+            if (user == null) {
+                _logger.LogError("||METODO GETUSERBYCEDULA||cedula:{}||CODIGO 500||");
+                throw new ArgumentException($"El usuario con la cédula: {cedula} no existe");
+            }else {
+                string encodedId = Base64Encode(user.Cedula);
+                User encodedUser = new User(encodedId, user.Nombre);
+                _logger.LogInformation($"||METODO GETUSERBYCEDULA||cedula:{encodedId}||CODIGO 500||");
+                return encodedUser;
+            }
+        }
 
         [HttpGet]
         public List<User> GetUsers()
@@ -35,7 +49,7 @@ namespace LumartinRetoNetCore.Controllers
                 string encodedId = Base64Encode(user.Cedula);
                 User userEncoded = new User(encodedId, user.Nombre);
                 userEncodedList.Add(userEncoded);
-                _logger.LogInformation($"||METODO GET||cedula:{encodedId}||CODIGO 200||");
+                _logger.LogInformation($"||METODO GETUSERS||cedula:{encodedId}||CODIGO 200||");
                 
             }
             return userEncodedList;
